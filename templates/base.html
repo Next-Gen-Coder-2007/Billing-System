@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Billing Software{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: linear-gradient(to right, #007bff, #00d4ff);
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+            color: #ffe082 !important;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: #6c757d;
+            margin-top: 2rem;
+        }
+        .result {
+            color: green;
+            font-weight: bolder;
+            text-align: center;
+            font-size: 30px;
+            animation: pulse 1s infinite alternate;
+        }
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: linear-gradient(to right, #007bff, #00d4ff);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .modal-header {
+            background: linear-gradient(to right, #007bff, #00d4ff);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        /* Dark Theme */
+        body.dark-theme {
+            background-color: #343a40;
+            color: #f8f9fa;
+        }
+
+        body.dark-theme .container {
+            background-color: #495057;
+            color: #f8f9fa;
+        }
+
+        body.dark-theme .navbar {
+            background: linear-gradient(to right, #343a40, #495057);
+        }
+
+        body.dark-theme footer {
+            color: #dee2e6;
+        }
+
+        body.dark-theme .card {
+            background-color: #495057;
+            color: #f8f9fa;
+        }
+
+        body.dark-theme .card-header {
+            background: linear-gradient(to right, #343a40, #495057);
+        }
+
+        body.dark-theme .modal-header {
+            background: linear-gradient(to right, #343a40, #495057);
+        }
+
+        body.dark-theme .modal-content {
+            background-color: #495057;
+            color: #f8f9fa;
+        }
+
+        body.dark-theme table {
+            background-color: #495057;
+            color: #f8f9fa;
+            border-color: #6c757d;
+        }
+
+        body.dark-theme th {
+            background-color: #343a40;
+            color: #f8f9fa;
+            border-color: #6c757d;
+        }
+
+        body.dark-theme td {
+            border-color: #6c757d;
+            background-color: rgb(53, 53, 53);
+            color: white;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}"><i class="fas fa-calculator"></i> Billing Software</a>
+            <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('customers') }}"><i class="fas fa-users"></i> Customers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('suppliers') }}"><i class="fas fa-truck"></i> Suppliers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('bills') }}"><i class="fas fa-file-invoice"></i> Bills</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('purchases') }}"><i class="fas fa-shopping-cart"></i> Purchases</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="modal" data-bs-target="#calculatorModal1" style="cursor: pointer;">
+                            <i class="fas fa-calculator"></i> 2/100 Calculator
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="modal" data-bs-target="#calculatorModal2" style="cursor: pointer;">
+                            <i class="fas fa-calculator"></i> 120 D Calculator
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="modal" data-bs-target="#calculatorModal3" style="cursor: pointer;">
+                            <i class="fas fa-calculator"></i> 75 D Calculator
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn btn-outline-light">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; {{ year }} Billing Software. All rights reserved.
+    </footer>
+
+    <!-- Modal for 2/100 Calculator -->
+    <div class="modal fade" id="calculatorModal1" tabindex="-1" aria-labelledby="calculatorModalLabel1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="calculatorModalLabel1">2/100</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="calculator-section">
+                        <form id="calcForm1">
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="netPrice1" class="form-label">Net Price</label>
+                                    <input type="number" class="form-control input1" id="netPrice1" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="jobWages1" class="form-label">Job Wages</label>
+                                    <input type="number" class="form-control input1" id="jobWages1" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="profit1" class="form-label">Profit Percentage</label>
+                                    <input type="number" class="form-control input1" id="profit1" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="rate1" class="form-label">Rate</label>
+                                    <input type="number" class="form-control input1" id="rate1" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="eekki1" class="form-label">Eekki</label>
+                                    <input type="number" class="form-control input1" id="eekki1" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="yards1" class="form-label">Yards</label>
+                                    <input type="number" class="form-control input1" id="yards1" required>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="result" id="result1">0</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for 120 D Calculator -->
+    <div class="modal fade" id="calculatorModal2" tabindex="-1" aria-labelledby="calculatorModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="calculatorModalLabel2">120 D</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="calculator-section">
+                        <form id="calcForm2">
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="netPrice2" class="form-label">Net Price</label>
+                                    <input type="number" class="form-control input1" id="netPrice2" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="jobWages2" class="form-label">Job Wages</label>
+                                    <input type="number" class="form-control input1" id="jobWages2" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="profit2" class="form-label">Profit Percentage</label>
+                                    <input type="number" class="form-control input1" id="profit2" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="rate2" class="form-label">Rate</label>
+                                    <input type="number" class="form-control input1" id="rate2" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="eekki2" class="form-label">Eekki</label>
+                                    <input type="number" class="form-control input1" id="eekki2" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="yards2" class="form-label">Yards</label>
+                                    <input type="number" class="form-control input1" id="yards2" required>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="result" id="result2">0</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for 75 D Calculator -->
+    <div class="modal fade" id="calculatorModal3" tabindex="-1" aria-labelledby="calculatorModalLabel3" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="calculatorModalLabel3">75 D</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="calculator-section">
+                        <form id="calcForm3">
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="netPrice3" class="form-label">Net Price</label>
+                                    <input type="number" class="form-control input1" id="netPrice3" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="jobWages3" class="form-label">Job Wages</label>
+                                    <input type="number" class="form-control input1" id="jobWages3" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="profit3" class="form-label">Profit Percentage</label>
+                                    <input type="number" class="form-control input1" id="profit3" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="rate3" class="form-label">Rate</label>
+                                    <input type="number" class="form-control input1" id="rate3" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="eekki3" class="form-label">Kunjam</label>
+                                    <input type="number" class="form-control input1" id="eekki3" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="yards3" class="form-label">Yards</label>
+                                    <input type="number" class="form-control input1" id="yards3" required>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="result" id="result3">0</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+    <script>
+        function saveToLocalStorage() {
+            localStorage.setItem("netPrice1", document.getElementById("netPrice1").value);
+            localStorage.setItem("jobWages1", document.getElementById("jobWages1").value);
+            localStorage.setItem("profit1", document.getElementById("profit1").value);
+            localStorage.setItem("rate1", document.getElementById("rate1").value);
+            localStorage.setItem("eekki1", document.getElementById("eekki1").value);
+            localStorage.setItem("yards1", document.getElementById("yards1").value);
+            localStorage.setItem("result1", document.getElementById("result1").textContent);
+
+            localStorage.setItem("netPrice2", document.getElementById("netPrice2").value);
+            localStorage.setItem("jobWages2", document.getElementById("jobWages2").value);
+            localStorage.setItem("profit2", document.getElementById("profit2").value);
+            localStorage.setItem("rate2", document.getElementById("rate2").value);
+            localStorage.setItem("eekki2", document.getElementById("eekki2").value);
+            localStorage.setItem("yards2", document.getElementById("yards2").value);
+            localStorage.setItem("result2", document.getElementById("result2").textContent);
+
+            localStorage.setItem("netPrice3", document.getElementById("netPrice3").value);
+            localStorage.setItem("jobWages3", document.getElementById("jobWages3").value);
+            localStorage.setItem("profit3", document.getElementById("profit3").value);
+            localStorage.setItem("rate3", document.getElementById("rate3").value);
+            localStorage.setItem("eekki3", document.getElementById("eekki3").value);
+            localStorage.setItem("yards3", document.getElementById("yards3").value);
+            localStorage.setItem("result3", document.getElementById("result3").textContent);
+        }
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-theme');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-theme')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        });
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                const icon = document.getElementById('themeToggle').querySelector('i');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            document.getElementById("netPrice1").value = localStorage.getItem("netPrice1") || '';
+            document.getElementById("jobWages1").value = localStorage.getItem("jobWages1") || '';
+            document.getElementById("profit1").value = localStorage.getItem("profit1") || '';
+            document.getElementById("rate1").value = localStorage.getItem("rate1") || '';
+            document.getElementById("eekki1").value = localStorage.getItem("eekki1") || '';
+            document.getElementById("yards1").value = localStorage.getItem("yards1") || '';
+            document.getElementById("result1").innerHTML = localStorage.getItem("result1") || '';
+
+            document.getElementById("netPrice2").value = localStorage.getItem("netPrice2") || '';
+            document.getElementById("jobWages2").value = localStorage.getItem("jobWages2") || '';
+            document.getElementById("profit2").value = localStorage.getItem("profit2") || '';
+            document.getElementById("rate2").value = localStorage.getItem("rate2") || '';
+            document.getElementById("eekki2").value = localStorage.getItem("eekki2") || '';
+            document.getElementById("yards2").value = localStorage.getItem("yards2") || '';
+            document.getElementById("result2").innerHTML = localStorage.getItem("result2") || '';
+
+            document.getElementById("netPrice3").value = localStorage.getItem("netPrice3") || '';
+            document.getElementById("jobWages3").value = localStorage.getItem("jobWages3") || '';
+            document.getElementById("profit3").value = localStorage.getItem("profit3") || '';
+            document.getElementById("rate3").value = localStorage.getItem("rate3") || '';
+            document.getElementById("eekki3").value = localStorage.getItem("eekki3") || '';
+            document.getElementById("yards3").value = localStorage.getItem("yards3") || '';
+            document.getElementById("result3").innerHTML = localStorage.getItem("result3") || '';
+
+            saveToLocalStorage();
+        }
+
+        const inputs = document.querySelectorAll(".input1");
+        inputs.forEach(input => {
+            input.addEventListener('keyup', saveToLocalStorage);
+        });
+
+        function calculate() {
+            const netPrice1 = parseFloat(document.getElementById('netPrice1').value) || 0;
+            const jobWages1 = parseFloat(document.getElementById('jobWages1').value) || 0;
+            const profit1 = parseFloat(document.getElementById('profit1').value) || 0;
+            const rate1 = parseFloat(document.getElementById('rate1').value) || 0;
+            const eekki1 = parseFloat(document.getElementById('eekki1').value) || 0;
+            const yards1 = parseFloat(document.getElementById('yards1').value) || 0;
+            const result1 = ((((netPrice1 / 1.12) + jobWages1) + (((netPrice1 / 1.12) + jobWages1) * (profit1 / 100))) / rate1) * eekki1 / 73 * yards1;
+            document.getElementById('result1').textContent = result1.toFixed(2);
+
+            const netPrice2 = parseFloat(document.getElementById('netPrice2').value) || 0;
+            const jobWages2 = parseFloat(document.getElementById('jobWages2').value) || 0;
+            const profit2 = parseFloat(document.getElementById('profit2').value) || 0;
+            const rate2 = parseFloat(document.getElementById('rate2').value) || 0;
+            const eekki2 = parseFloat(document.getElementById('eekki2').value) || 0;
+            const yards2 = parseFloat(document.getElementById('yards2').value) || 0;
+            const result2 = ((((netPrice2 / 1.12) + jobWages2) + (((netPrice2 / 1.12) + jobWages2) * (profit2 / 100))) / rate2) * eekki2 / 73 * yards2;
+            document.getElementById('result2').textContent = result2.toFixed(2);
+
+            const netPrice3 = parseFloat(document.getElementById('netPrice3').value) || 0;
+            const jobWages3 = parseFloat(document.getElementById('jobWages3').value) || 0;
+            const profit3 = parseFloat(document.getElementById('profit3').value) || 0;
+            const rate3 = parseFloat(document.getElementById('rate3').value) || 0;
+            const eekki3 = parseFloat(document.getElementById('eekki3').value) || 0;
+            const yards3 = parseFloat(document.getElementById('yards3').value) || 0;
+            const result3 = (((((netPrice3 / 1.12) + jobWages3) + (((netPrice3 / 1.12) + jobWages3) * (profit3 / 100))) / rate3) / 71) * eekki3 * yards3;
+            document.getElementById('result3').textContent = result3.toFixed(2);
+        }
+        document.querySelectorAll('.input1').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+    </script>
+</body>
+</html>

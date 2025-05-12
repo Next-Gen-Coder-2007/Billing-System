@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Bill #{{ bill.id }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .main-table, .main-table td, .main-table th {
+            border: 1px solid #ddd;
+        }
+        .no-border td {
+            border: none !important;
+        }
+        .header {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d9534f;
+            text-align: center;
+            padding: 20px 0;
+            background-color: #f8f8f8;
+        }
+        .green-text {
+            color: #5cb85c;
+            font-weight: bold;
+        }
+        .gray-text {
+            background-color: #f2f2f2;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            background-color: #f8f8f8;
+            padding: 10px;
+        }
+        .right {
+            text-align: right;
+        }
+        .center {
+            text-align: center;
+        }
+        .padding {
+            padding: 10px;
+        }
+        .footer {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            padding: 10px;
+            background-color: #f8f8f8;
+        }
+        .bank-details {
+            background-color: #f8f8f8;
+            padding: 10px;
+        }
+        .signature {
+            text-align: right;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<table class="main-table">
+    <tr class="no-border">
+        <td colspan="5" class="header">BASKARA TEX</td>
+    </tr>
+    <tr class="no-border">
+        <td colspan="5" class="center green-text">
+            5/7 RAMASAMY COLONY , NAGAL NAGAR , DINDIGUL - 624003 &nbsp;&nbsp;&nbsp;&nbsp;
+            <span style="color:#000">GSTIN 33AJGPB6033G1ZU</span>
+        </td>
+    </tr>
+    <tr class="no-border">
+        <td colspan="3" class="padding">
+            <b>TO,</b><br>
+            <span class="green-text">{{ bill.customer.name }}</span><br>
+            {{ bill.customer.address1 }}<br>
+            {{ bill.customer.address2 }}<br>
+            GSTIN : {{ bill.customer.gstin }}<br>
+            Phone : {{ bill.customer.phone }}
+        </td>
+        <td colspan="2" class="padding right">
+            9150780998<br>
+            9283160080<br>
+            <b>Date</b> {{ bill.created_at.strftime('%d/%m/%Y') }}<br>
+            <b>Invoice No</b> {{ bill.id }}
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="5" class="section-title">TAX INVOICE - CASH/CREDIT BILL</td>
+    </tr>
+
+    <tr class="gray-text">
+        <th>RATE</th>
+        <th>PARTICULARS</th>
+        <th>HSN/SAC</th>
+        <th>QUANTITY</th>
+        <th>AMOUNT</th>
+    </tr>
+
+    {% for item in items %}
+    <tr>
+        <td class="center">{{ "%.2f"|format(item.price) }}</td>
+        <td class="padding">{{ item.product.name }}</td>
+        <td class="center">{{ item.product.hsn_code }}</td>
+        <td class="center">{{ item.quantity }}</td>
+        <td class="right">{{ "%.2f"|format(item.subtotal) }}</td>
+    </tr>
+    {% endfor %}
+
+    <tr>
+        <td colspan="4" class="right"><b>TOTAL</b></td>
+        <td class="right"><b>{{ "%.2f"|format(bill.total_amount) }}</b></td>
+    </tr>
+    {% if bill.cgst and bill.sgst %}
+    <tr>
+        <td colspan="4" class="right">CGST <small>({{ "%.2f"|format(bill.gst_rate / 2 * 100) }}%)</small></td>
+        <td class="right">{{ "%.2f"|format(bill.cgst) }}</td>
+    </tr>
+    <tr>
+        <td colspan="4" class="right">SGST <small>({{ "%.2f"|format(bill.gst_rate / 2 *100) }}%)</small></td>
+        <td class="right">{{ "%.2f"|format(bill.sgst) }}</td>
+    </tr>
+    {% elif bill.igst %}
+    <tr>
+        <td colspan="4" class="right">IGST <small>({{ "%.2f"|format(bill.gst_rate *100) }}%)</small></td>
+        <td class="right">{{ "%.2f"|format(bill.igst) }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td colspan="4" class="right">ROUND OFF</td>
+        <td class="right">{{ "%.2f"|format(bill.round_off or 0.0) }}</td>
+    </tr>
+    <tr>
+        <td colspan="4" class="right"><b>TOTAL AMOUNT</b></td>
+        <td class="right"><b>{{ "%.2f"|format(bill.grand_total) }}</b></td>
+    </tr>
+    <tr>
+        <td colspan="5" class="padding"><b>TOTAL AMOUNT IN WORDS:</b> {{ bill.amount_in_words }}</td>
+    </tr>
+
+    <tr class="no-border">
+        <td colspan="3" class="bank-details">
+            <b>BANK DETAILS</b><br>
+            BANK OF INDIA<br>
+            A/C NO : 826720110000462<br>
+            IFS CODE : BKID0008267<br>
+            A/C NAME : BASKARA TEX<br>
+            UPI ID : baskaratex@axl
+        </td>
+        <td colspan="2" class="signature">
+            <b>For BASKARA TEX</b><br><br>
+            Proprietor
+        </td>
+    </tr>
+    <tr class="no-border">
+        <td colspan="5" class="footer">E. & O. E.</td>
+    </tr>
+</table>
+
+</body>
+</html>
