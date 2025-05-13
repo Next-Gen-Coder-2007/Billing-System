@@ -6,10 +6,11 @@ import random
 from sqlalchemy import func, extract
 from datetime import date, timedelta
 import pdfkit
+import os
 
 fake = Faker()
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///billing.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://sql12778512:fJQMCJFm2A@sql12.freesqldatabase.com:3306/sql12778512'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -789,4 +790,6 @@ def delete_purchase(purchase_id):
     return redirect(url_for('purchases'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)

@@ -25,7 +25,7 @@ class Supplier(db.Model):
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    hsn_code = db.Column(db.String(200))
+    hsn_code = db.Column(db.String(100))
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, default=0)
 
@@ -40,8 +40,7 @@ class Bill(db.Model):
     total_amount = db.Column(db.Float, nullable=False)
     grand_total = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    items = db.relationship('BillItem', backref='bill',cascade="all, delete-orphan", lazy=True)
+    items = db.relationship('BillItem', backref='bill', cascade="all, delete-orphan", lazy=True)
 
     def __repr__(self):
         return f'<Bill {self.id}>'
@@ -52,13 +51,13 @@ class BillItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    qty_type = db.Column(db.String(10), nullable=False)  # <-- New column
+    qty_type = db.Column(db.String(10), nullable=False)  # fixed: added length
     subtotal = db.Column(db.Float, nullable=False)
     product = db.relationship('Product')
 
 class Purchase(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    bill_no = db.Column(db.String, nullable=False)
+    bill_no = db.Column(db.String(100), nullable=False)  # fixed: added length
     supplier_id = db.Column(db.Integer, db.ForeignKey('supplier.id'), nullable=False)
     is_interstate = db.Column(db.Boolean, default=False)
     gst_rate = db.Column(db.Float, nullable=False)
@@ -68,11 +67,11 @@ class Purchase(db.Model):
     total_amount = db.Column(db.Float, nullable=False)
     grand_total = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
     items = db.relationship('PurchaseItem', backref='purchase', lazy=True)
 
     def __repr__(self):
         return f'<Purchase {self.id}>'
+
 class PurchaseItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     purchase_id = db.Column(db.Integer, db.ForeignKey('purchase.id'), nullable=False)
@@ -95,5 +94,4 @@ class SupplierPayment(db.Model):
     payment_gateway = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
-
     supplier = db.relationship('Supplier', back_populates='payments')
